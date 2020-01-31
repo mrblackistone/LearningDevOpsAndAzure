@@ -1,7 +1,9 @@
 #Requires -Version <N>[.<n>]
 #Requires -PSSnapin <PSSnapin-Name> [-Version <N>[.<n>]]
-#Requires -Modules { <Module-Name> | <Hashtable> }
-#Requires -PSEdition <PSEdition-Name>
+#Requires -Modules az, @{ ModuleName="AzureRM.Netcore"; ModuleVersion="0.12.0" }
+#Requires -Modules az, @{ ModuleName="AzureRM.Netcore"; MaximumVersion="0.12.0" }
+#Requires -Modules az, @{ ModuleName="AzureRM.Netcore"; RequiredVersion="0.12.0" }
+#Requires -PSEdition Core <or Desktop>
 #Requires -ShellId <ShellId>
 #Requires –RunAsAdministrator
 
