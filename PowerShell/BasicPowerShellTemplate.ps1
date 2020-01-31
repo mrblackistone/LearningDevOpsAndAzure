@@ -30,7 +30,7 @@ Date: January 17, 2020
 
 # The following attributes are available inside the param block.  With the exception of the "Parameter" attribute,
 # they are also available outside of the param block:
-
+[CmdletBinding(DefaultParametersetName="p1")]
 param (
     [Switch]$switchName,
     [ValidateRange(60, 9999)]$intVariableMustBeBetween60And9999,
@@ -45,7 +45,16 @@ param (
     [ValidatePattern("regexHere")]$valueMustMatchRegEx,
     [ValidateNotNull()]$valueMustNotBeNull,
     [ValidateNotNullOrEmpty()]$valueMustNotBeNullOrEmpty,
-    [Parameter(Mandatory = $true, HelpMessage = "Message", DontShow = $true, ParameterSetName = "SomeName", Position = 0, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $false)]$thisParameterUsesSpecialProcessingAsShown
+    [Parameter(Mandatory = $true, HelpMessage = "Message", DontShow = $true, ParameterSetName = "p1", Position = 0, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $false)]$thisParameterUsesSpecialProcessingAsShown
 )
+
+if ((Get-AzContext).count -eq 0) { Connect-AzAccount -Environment azureusgovernment }
+if (!(Get-AzContext).Subscription) { (Get-AzSubscription)[0] | Select-AzSubscription }
+
+switch ($PsCmdlet.ParameterSetName)
+    {
+    "p1"  { Write-Host "Set p1"; break}
+    "p2"  { Write-Host "Set p2"; break}
+    }
 
 Write-Output "Execution goes here!"
