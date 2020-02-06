@@ -1,0 +1,62 @@
+{
+    "properties": {
+      "displayName": "Inherit Missing Tags From Resource Group",
+      "policyType": "Custom",
+      "mode": "Indexed",
+      "description": "A required tag that is missing from a resource is instead inherited, along with its value, from the Resource Group.  Assign this policy once for each tag, preferrably to a policy set definition (initiative).",
+      "metadata": {
+        "category": "Tags"
+      },
+      "parameters": {
+        "policyEffect": {
+          "type": "String",
+          "metadata": {
+            "displayName": "policyEffect",
+            "description": null
+          },
+          "allowedValues": [
+            "disabled",
+            "modify"
+          ],
+          "defaultValue": "modify"
+        },
+        "tagName": {
+          "type": "String",
+          "metadata": {
+            "displayName": "tagName",
+            "description": null
+          }
+        }
+      },
+      "policyRule": {
+        "if": {
+          "allOf": [
+            {
+              "field": "[concat('tags[', parameters('tagName'), ']')]",
+              "exists": "false"
+            },
+            {
+              "field": "type",
+              "notEquals": "Microsoft.Resources/subscriptions/resourceGroups"
+            }
+          ]
+        },
+        "then": {
+          "effect": "[parameters('policyEffect')]",
+          "details": {
+            "operations": [
+              {
+                "operation": "add",
+                "field": "[concat('tags[', parameters('tagName'), ']')]",
+                "value": "[resourcegroup().tags[parameters('tagName')]]"
+              }
+            ],
+            "roleDefinitionIds": [
+              "/providers/microsoft.authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c"
+            ]
+          }
+        }
+      }
+    },
+    "type": "Microsoft.Authorization/policyDefinitions"
+  }

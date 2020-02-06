@@ -1,0 +1,59 @@
+{
+    "properties": {
+        "displayName": "VNets Without NSGs - No Firewall - One Gateway",
+        "policyType": "Custom",
+        "mode": "All",
+        "metadata": {
+            "category": "Network"
+        },
+        "parameters": {
+            "policyEffect": {
+                "type": "String",
+                "metadata": {
+                    "displayName": "policyEffect",
+                    "description": null
+                },
+                "allowedValues": [
+                    "Deny",
+                    "Audit",
+                    "Disabled"
+                ],
+                "defaultValue": "Audit"
+            }
+        },
+        "policyRule": {
+            "if": {
+                "allOf": [
+                    {
+                        "field": "type",
+                        "equals": "Microsoft.Network/virtualNetworks"
+                    },
+                    {
+                        "count": {
+                            "field": "Microsoft.Network/virtualNetworks/subnets[*]",
+                            "where": {
+                                "field": "Microsoft.Network/virtualNetworks/subnets[*].networkSecurityGroup.id",
+                                "exists": "true"
+                            }
+                        },
+                        "equals": "[sub(length(field('Microsoft.Network/virtualNetworks/subnets[*]')), 1)]"
+                    },
+                    {
+                        "not": {
+                            "field": "Microsoft.Network/virtualNetworks/subnets[*].name",
+                            "notEquals": "GatewaySubnet"
+                        }
+                    },
+                    {
+                        "field": "Microsoft.Network/virtualNetworks/subnets[*].name",
+                        "notEquals": "AzureFirewallSubnet"
+                    }
+                ]
+            },
+            "then": {
+                "effect": "[parameters('policyEffect')]"
+            }
+        }
+    },
+    "type": "Microsoft.Authorization/policyDefinitions"
+}

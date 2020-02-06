@@ -1,0 +1,69 @@
+{
+    "properties": {
+        "displayName": "Add Missing Tag to a Resource Group",
+        "policyType": "Custom",
+        "mode": "Indexed",
+        "description": "This policy definition adds a missing tag to a resource group.  Assign this policy once for each tag, preferrably to a policy set definition (initiative).",
+        "metadata": {
+            "category": "Tags"
+        },
+        "parameters": {
+            "policyEffect": {
+                "type": "String",
+                "metadata": {
+                    "displayName": "policyEffect",
+                    "description": null
+                },
+                "allowedValues": [
+                    "disabled",
+                    "modify"
+                ],
+                "defaultValue": "modify"
+            },
+            "tagName": {
+                "type": "String",
+                "metadata": {
+                    "displayName": "policyEffect",
+                    "description": null
+                }
+            },
+            "defaultTagValue": {
+                "type": "String",
+                "metadata": {
+                    "displayName": "defaultTagValue",
+                    "description": null
+                }
+            }
+        },
+        "policyRule": {
+            "if": {
+                "allOf": [
+                    {
+                        "field": "[concat('tags[', parameters('tagName'), ']')]",
+                        "exists": "false"
+                    },
+                    {
+                        "field": "type",
+                        "equals": "Microsoft.Resources/subscriptions/resourceGroups"
+                    }
+                ]
+            },
+            "then": {
+                "effect": "[parameters('policyEffect')]",
+                "details": {
+                    "operations": [
+                        {
+                            "operation": "add",
+                            "field": "[concat('tags[', parameters('tagName'), ']')]",
+                            "value": "[parameters('defaultTagValue')]"
+                        }
+                    ],
+                    "roleDefinitionIds": [
+                        "/providers/microsoft.authorization/roleDefinitions/b24988ac-6180-42a0-ab88-20f7382dd24c"
+                    ]
+                }
+            }
+        }
+    },
+    "type": "Microsoft.Authorization/policyDefinitions"
+}

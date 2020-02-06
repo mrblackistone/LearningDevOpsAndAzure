@@ -1,0 +1,49 @@
+{
+    "properties": {
+        "displayName": "Subnets Without NSGs",
+        "policyType": "Custom",
+        "mode": "All",
+        "metadata": {
+            "category": "Network"
+        },
+        "parameters": {
+            "policyEffect": {
+                "type": "String",
+                "metadata": {
+                    "displayName": "policyEffect",
+                    "description": null
+                },
+                "allowedValues": [
+                    "Deny",
+                    "Audit",
+                    "Disabled"
+                ],
+                "defaultValue": "Audit"
+            }
+        },
+        "policyRule": {
+            "if": {
+                "allOf": [
+                    {
+                        "field": "type",
+                        "equals": "Microsoft.Network/virtualNetworks/subnets"
+                    },
+                    {
+                        "field": "Microsoft.Network/virtualNetworks/subnets/networkSecurityGroup.id",
+                        "exists": "true"
+                    },
+                    {
+                        "field": "name",
+                        "notIn": [
+                            "GatewaySubnet",
+                            "AzureFirewallSubnet"
+                        ]
+                    }
+                ]
+            },
+            "then": {
+                "effect": "[parameters('policyEffect')]"
+            }
+        }
+    }
+}
