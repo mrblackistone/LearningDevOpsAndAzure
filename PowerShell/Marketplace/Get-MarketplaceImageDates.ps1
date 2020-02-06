@@ -1,8 +1,8 @@
 param (
-    $region = "usgovvirginia", #This region is in the U.S. Government Azure cloud and should be changed to your region.
-    $publisherName = "MicrosoftWindowsServer",
-    $offerName = "WindowsServer",
-    $skuName = "2016-Datacenter"
+    $Region = "usgovvirginia", #This region is in the U.S. Government Azure cloud and should be changed to your region.
+    $PublisherName = "MicrosoftWindowsServer",
+    $OfferName = "WindowsServer",
+    $SkuName = "2016-Datacenter"
 )
 
 <#
@@ -24,7 +24,7 @@ $version="14393.3443.2001090113"
 Get-AzVMImage -Location $region -PublisherName $pubName -Offer $offerName -Skus $skuName -Version $version
 #>
 
-$images = Get-AzVMImage -Location $region -PublisherName $pubName -Offer $offerName -Sku $skuName
+$images = Get-AzVMImage -Location $region -PublisherName $publisherName -Offer $offerName -Sku $skuName
 foreach ($image in $images) {
     if ($image.Version -match "^\d{5}.\d{4}.\d{10}$") {
         $image.Version
