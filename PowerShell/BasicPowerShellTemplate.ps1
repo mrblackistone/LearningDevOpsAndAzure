@@ -20,7 +20,7 @@
     Example of how to run the script
 .NOTES
 Author: Michael Blackistone
-Date: January 17, 2020
+Date: February 13, 2020
 #>
 
 # The requires statements above are used if the script has certain requirements.
@@ -30,7 +30,7 @@ Date: January 17, 2020
 
 # The following attributes are available inside the param block.  With the exception of the "Parameter" attribute,
 # they are also available outside of the param block:
-[CmdletBinding(DefaultParametersetName="p1")]
+[CmdletBinding(DefaultParametersetName = "p1")]
 param (
     [Switch]$switchName,
     [ValidateRange(60, 9999)]$intVariableMustBeBetween60And9999,
@@ -48,6 +48,8 @@ param (
     [Parameter(Mandatory = $true, HelpMessage = "Message", DontShow = $true, ParameterSetName = "p1", Position = 0, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $false)]$thisParameterUsesSpecialProcessingAsShown
 )
 
+# Example disclaimer:
+
 #------------------------------------------------------------------------------
 #
 # Copyright © 2019 Microsoft Corporation.  All rights reserved.
@@ -60,22 +62,78 @@ param (
 #
 #------------------------------------------------------------------------------
 
-
+# Example commands to log into Azure Government and select a subscription if not already logged in:
 if ((Get-AzContext).count -eq 0) { Connect-AzAccount -Environment azureusgovernment }
 if (!(Get-AzContext).Subscription) { (Get-AzSubscription)[0] | Select-AzSubscription }
 
-try { feiwowjfwo }
-catch {
-    "An error occurred!"
+# Example try;catch;finally block:
+try { SomethingThatMightThrowABreakingException }
+catch [System.Net.WebException],[System.IO.IOException] {
+    "A web error occurred!"
     $_.ScriptStackTrace
     $_.Exception
     $_.ErrorDetails
 }
+catch { "An unknown error occurred" }
+finally { "Put code here that should run regardless of whether the try succeeded or not" }
 
-switch ($PsCmdlet.ParameterSetName)
-    {
-    "p1"  { Write-Host "Set p1"; break}
-    "p2"  { Write-Host "Set p2"; break}
-    }
+Example switch statement:
+switch ($PsCmdlet.ParameterSetName) {
+    "p1" { Write-Host "Set p1"; break }
+    "p2" { Write-Host "Set p2"; break }
+}
 
+#Example text outputs
 Write-Output "Execution goes here!"
+Write-Warning "This is a warning!"
+Write-Error "This is an error."
+Write-Host "This goes to the current interactive terminal."
+Set-Content # Create or overwrite a file's contents.
+Add-Content # Add to a file's contents.
+
+# Change defaults for how commands are processed, such as error handling and confirmation:
+$ErrorActionPreference = "Continue"
+$ConfirmPreference = $true
+
+# PowerShell default variables exist.  Here are a few:
+$PSVersionTable
+$PSCulture
+$PSEdition
+
+# Retrieve errors:
+$error               #All errors from session
+$error[0]            #Most recent error
+$error[-1]           #First error
+$error[0].Exception  #Most recent error's exception message
+
+# Environment variables are useful. Use tab-completion to see what's available.  One example:
+$env:ALLUSERSPROFILE
+
+# Conditional logic based on what parameter set is in use:
+if ($PsCmdlet.ParameterSetName -eq "ParameterSet1") {Do-This} else {Do-ThisOtherThing}
+
+workflow Test-Workflow {
+    [CmdletBinding(ConfirmImpact = "string",
+        DefaultParameterSetName = "string",
+        HelpURI = "URI",
+        PositionalBinding = "boolean")]
+
+    Param (
+        [parameter(Mandatory = $true)]
+        [String[]]
+        $param1
+    )
+
+    Foreach -Parallel -ThrottleLimit 50 ($member in $collection) {
+        #Do things which don't conflict with each other. Don't manipulate the same object(s) in parallel threads.
+    }
+}
+Test-Workflow -param1 @("string1", "string2")
+
+Function Test-Function {
+    param (
+        $param1
+    )
+    Write-Output $param1
+}
+Test-Function -param1 "Output"
