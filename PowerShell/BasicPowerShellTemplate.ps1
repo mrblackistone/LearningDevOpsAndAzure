@@ -125,7 +125,8 @@ workflow Test-Workflow {
     )
 
     Foreach -Parallel -ThrottleLimit 50 ($member in $collection) {
-        #Do things which don't conflict with each other. Don't manipulate the same object(s) in parallel threads.
+        # Do things which don't conflict with each other. Don't manipulate the same object(s) in parallel threads.
+        # Will run this block against up to 50 members of the collection at a time.
     }
 }
 Test-Workflow -param1 @("string1", "string2")
