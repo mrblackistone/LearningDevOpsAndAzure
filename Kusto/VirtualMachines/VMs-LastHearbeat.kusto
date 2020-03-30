@@ -1,0 +1,24 @@
+//Define one or more subscriptions to check:
+let Subscription = dynamic([
+    "c3456789-0123-456d-78e9-f01a2b34c567"
+]);
+//Create a function named "utc_to_us_date_format", which will take input "t" of type "datetime"
+//and format it as MM/dd/yyyy hh:mm:ss AM/PM UTC.  "strcat" is used to create the string and
+//"iff" is used to determine if the time is in the morning or afternoon for AM or PM.
+let utc_to_us_date_format = (t:datetime)
+{
+  strcat(getmonth(t), "/", dayofmonth(t),"/", getyear(t), " ",
+  bin((t-1h)%12h+1h,1s), iff(t%24h<12h, " AM UTC", " PM UTC"))
+};
+workspace('currentWorkspace').Heartbeat
+//Here we show an example of searching records across two workspaces
+| union (workspace('additionalWorkspace').Heartbeat)
+//Search all records:
+| where TimeGenerated < now()
+| where SubscriptionId in (Subscription)
+| summarize TimeGenerated=max(TimeGenerated) by Computer
+| where TimeGenerated  < ago(5m)
+| project TimeGenerated, Computer
+| extend utctimestamp = utc_to_us_date_format(TimeGenerated)
+| extend HostName = strcat(Computer, ' - Last Heartbeat: ', utctimestamp)
+| summarize AggregatedValue = count() by HostName, TimeGenerated

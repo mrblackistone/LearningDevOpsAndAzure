@@ -1,0 +1,5 @@
+//Here we determine the total Megabytes sent to Log Analytics by all solutions/tables
+union withsource = tt *
+//| where _IsBillable == true
+| summarize MBytes=round(sum(_BilledSize/1024/1024),2) by Solution=tt , _IsBillable
+| sort by MBytes desc nulls last

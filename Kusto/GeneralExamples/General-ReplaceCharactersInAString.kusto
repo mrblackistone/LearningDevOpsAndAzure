@@ -1,0 +1,2 @@
+AADAuditLogs_CL
+| extend ReplacedStuff = replace(';', ',', ColumnName)

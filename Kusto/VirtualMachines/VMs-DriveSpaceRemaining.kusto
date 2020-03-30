@@ -1,0 +1,11 @@
+let Subscription = "c3456789-0123-456d-78e9-f01a2b34c567";
+Perf
+| where TimeGenerated >= ago(12h)
+| where CounterName == "% Free Space"
+| where InstanceName matches regex "^[A-Z]:$"
+| where _ResourceId startswith strcat('/subscriptions/', Subscription)
+| extend SpaceRemaining=round(CounterValue, 0) 
+| project TimeGenerated, Computer, InstanceName, SpaceRemaining, _ResourceId, CounterName 
+| summarize FreeSpacePct=min(SpaceRemaining) by Computer,InstanceName
+| sort by Computer asc, InstanceName asc
+| render barchart kind= unstacked 
