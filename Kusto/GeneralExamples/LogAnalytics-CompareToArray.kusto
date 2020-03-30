@@ -1,0 +1,24 @@
+//Here we define arrays of excluded strings, to be used in the query
+let ExcludedOperations = dynamic([
+    "Microsoft.Compute/restorePointCollections/restorePoints/delete"
+]);
+//ObjectIDs of Enterprise Apps to exclude:
+let ExcludedPrincipals = dynamic([
+    "a1234567-8901-234b-56c7-d89e0f12a345",
+    "b2345678-9012-345c-67d8-e90f1a23b456"
+]);
+AzureActivity
+| where TimeGenerated >= ago(1d)
+| where Caller !in (ExcludedPrincipals) 
+| project TimeGenerated,
+          SubscriptionId,
+          OperationName,
+          ActivityStatus,
+          Caller,
+          ResourceId,
+          Resource,
+          Name=tostring(todynamic(split(Caller, '@', 0))[0]) //
+| where OperationName !in (ExcludedOperations)
+| where OperationName endswith "/delete" 
+| where ActivityStatus == "Started" 
+| summarize Deletions=count() by tostring(Name)

@@ -1,0 +1,10 @@
+//Use the "SubscriptionLookupTable" function to add a SubscriptionLookupName column to the
+//current table, by associating the "Caller" column in the current table with the "SubscriptionLookupId"
+//column from the lookup table.
+AzureActivity
+| where TimeGenerated >= ago(30m)
+| join kind=leftouter (SubscriptionLookupTable) on $left.Caller == $right.SubscriptionLookupId
+//Create a new column "Requestor" that contains the SubscriptionLookupName from the lookup table.  But
+//if there's no associated SubscriptionLookupName from the lookup table, just use the value from the "Caller" column.
+| extend Requestor=iif(isempty(SubscriptionLookupName),Caller,SubscriptionLookupName)
+| project-away Caller, SubscriptionLookupName

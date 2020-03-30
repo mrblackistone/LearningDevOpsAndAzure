@@ -1,0 +1,7 @@
+//Create a lookup table to resolve Azure Subscription IDs to Display Names
+let SubscriptionLookupTable=datatable(SubscriptionLookupId:string, SubscriptionLookupName:string)[
+"a1234567-8901-234b-56c7-d89e0f12a345","CoreEnvironment",
+"b2345678-9012-345c-67d8-e90f1a23b456","Development",
+"c3456789-0123-456d-78e9-f01a2b34c567","Sandbox"
+];
+SubscriptionLookupTable

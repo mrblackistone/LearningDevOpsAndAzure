@@ -1,0 +1,8 @@
+//Use RegEx and a capture group to extract the desired part of a string.  In this case the display
+//name contained in the "initiatedBy_app_s" column.
+AADAuditLogs_CL
+| where TimeGenerated >= ago(180d)
+| extend AppName=extract('displayName=([-a-zA-Z0-9]+);', 1, initiatedBy_app_s)
+| project-away initiatedBy_app_s
+| where isnotempty(AppName)
+| sort by TimeGenerated desc
