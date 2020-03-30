@@ -1,0 +1,16 @@
+let PolicyName = "myPolicyName";
+let Subscriptions = dynamic(["a1234567-8901-234b-56c7-d89e0f12a345"]);
+let Exceptions = dynamic(["resourceToExempt"]);
+AzureActivity
+| where TimeGenerated >= ago(2d)
+| where SubscriptionId in (Subscriptions)
+| where Resource !in (Exceptions)
+| project SubscriptionId, ResourceGroup, Resource, Category, Properties
+| where Category == "Policy"
+| where isnotempty(Properties)
+| extend Policy = todynamic(tostring(todynamic(Properties).policies))
+| mvexpand Policy
+| where Policy.policyDefinitionName == PolicyName
+| summarize Count = count() by SubscriptionId, ResourceGroup, Resource
+| where Count >= 2
+| project-away Count, SubscriptionId

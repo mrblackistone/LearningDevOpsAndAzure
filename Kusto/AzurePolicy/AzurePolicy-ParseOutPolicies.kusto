@@ -1,0 +1,10 @@
+//This will take any AzureActivity entries relating to Azure Policy and extract their array of policies out into
+//individual records (lines).  From there searching/counting becomes easier.
+AzureActivity
+| where TimeGenerated >= ago(1d)
+| where Category == "Policy"
+| where isnotempty(Properties)
+| extend Policy = todynamic(tostring(todynamic(Properties).policies))
+//| where array_length(Policy) >= 2
+| mvexpand Policy
+//| extend PolDefName = tostring(Policy.policyDefinitionName)

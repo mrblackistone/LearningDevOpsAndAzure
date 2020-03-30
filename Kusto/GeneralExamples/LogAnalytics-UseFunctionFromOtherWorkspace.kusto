@@ -1,0 +1,7 @@
+//Use the "SubscriptionLookupTable" function found in another workspace to add a SubscriptionLookupName column to the
+//current table, by associating the "Caller" column in the current table with the "SubscriptionLookupId"
+//column from the lookup table.
+AzureActivity
+| where TimeGenerated >= ago(7d)
+| join kind=leftouter workspace('OtherWorkspaceName').SubscriptionLookupTable on $left.Caller == $right.SubscriptionLookupId
+| extend Requestor=iif(isempty(SubscriptionLookupName),Caller,SubscriptionLookupName)

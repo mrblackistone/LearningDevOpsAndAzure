@@ -1,0 +1,17 @@
+//Find all write or delete operations against specified network resource types.
+let MonitoredResourceTypes = dynamic([
+    'networkSecurityGroups',
+    'virtualNetworks',
+    'routeTables'
+]);
+AzureActivity
+| where TimeGenerated >= ago(60d)
+| where OperationName startswith "Microsoft.Network/"
+//Here we split the OperationName, which includes the resource type, into an array containing just
+//the item from index "1" (index 0 is the provider, and index 2 is the operation).  Since thie output
+//of this is an array, we then use strcat_array with index 0 (since there's only one item anyway)
+//to convert the value to a string for comparison with the MonitoredResourceTypes array.
+| where strcat_array(split(OperationName, '/',1),0) !in (MonitoredResourceTypes)
+| where (OperationName endswith "/write" or OperationName endswith "/delete")
+//| where Level == "Informational" and ActivityStatus == "Succeeded" 
+| where Caller contains "@"
