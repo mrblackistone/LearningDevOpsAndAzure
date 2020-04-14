@@ -1,0 +1,60 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "webSiteResourceName": {
+            "type": "String",
+            "metadata": {
+                "description": "Name of the 'Microsoft.Web/sites' resource that is to be VNet integrated."
+            }
+        },
+        "vnetResourceName": {
+            "type": "String",
+            "metadata": {
+                "description": "Name of the 'Microsoft.Network/virtualNetworks' resource that the web app is to be integrated into.  Must have an active VPN gateway on a 'GatewaySubnet' subnet."
+            }
+        },
+        "vpnPackageUri": {
+            "type": "String",
+            "metadata": {
+                "description": "URI to download the VPN package from the gateway.  You can obtain this using a PowerShell command similar to the following:  Get-AzVpnClientPackage -ResourceGroupName myResourceGroup -VirtualNetworkGatewayName myVnetGateway -ProcessorArchitecture Amd64"
+            }
+        },
+        "publicCertData": {
+            "type": "string",
+            "metadata": {
+                "description": "A certificate file (.cer) blob containing the public key of the private key used to authenticate a Point-To-Site VPN connection.  This should be the same as the value found in the VPN Gateway's 'Properties/vpnClientConfiguration/vpnClientRootCertificates[0]/properties/publicCertData'"
+            }
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "name": "[concat(parameters('webSiteResourceName'), '/', parameters('vnetResourceName'))]",
+            "type": "Microsoft.Web/sites/virtualNetworkConnections",
+            "dependsOn": [
+            ],
+            "apiVersion": "2018-11-01",
+            "properties": {
+                "vnetResourceId": "[resourceId('Microsoft.Network/virtualNetworks', parameters('vnetResourceName'))]",
+                "certBlob": "[parameters('publicCertData')]",
+                "dnsServers": null,
+                "isSwift": false
+            },
+            "resources": [
+                {
+                    "name": "primary",
+                    "type": "gateways",
+                    "apiVersion": "2018-11-01",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Web/sites/virtualNetworkConnections', parameters('webSiteResourceName'), parameters('vnetResourceName'))]"
+                    ],
+                    "properties": {
+                        "vnetResourceName": "[parameters('vnetResourceName')]",
+                        "vpnPackageUri": "[parameters('vpnPackageUri')]"
+                    }
+                }
+            ]
+        }
+    ]
+}
