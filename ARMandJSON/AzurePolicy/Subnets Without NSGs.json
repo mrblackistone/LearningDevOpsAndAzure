@@ -30,7 +30,7 @@
                     },
                     {
                         "field": "Microsoft.Network/virtualNetworks/subnets/networkSecurityGroup.id",
-                        "exists": "true"
+                        "exists": "false"
                     },
                     {
                         "field": "name",
